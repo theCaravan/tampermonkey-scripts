@@ -1,82 +1,64 @@
 // ==UserScript==
 // @name         TikTok Auto Next on Video End with Delay
 // @namespace    http://tampermonkey.net/
-// @version      0.12
+// @version      0.13
 // @description  Automatically scroll to the next video on TikTok when the current video ends, with a delay to ensure video length loads
 // @author       theCaravan
 // @match        *://www.tiktok.com/*
 // @grant        none
 // ==/UserScript==
-(function() {
+(function () {
     'use strict';
 
-    let isCarousel = false;
-    let intervalId;
-    let imageCount = 0;
-    let carouselProgress = 0;
-
-    function detectCarousel() {
-        // Locate the pagination wrapper
-        const paginationWrapper = document.querySelector('.css-1qe8vby-DivPaginationWrapper .css-1jirnpf-DivDotWrapper, .css-19ikq1l-DivDotWrapper');
-        if (paginationWrapper) {
-            const paginationDots = paginationWrapper.parentElement.querySelectorAll('.css-1jirnpf-DivDotWrapper, .css-19ikq1l-DivDotWrapper');
-            imageCount = paginationDots.length;
-            console.log('Carousel detected with', imageCount, 'images');
-            return imageCount > 0;
-        }
-        return false;
+    // Function to detect carousel elements on the page
+    function isCarousel() {
+        return document.querySelector('.css-1qe8vby-DivPaginationWrapper') !== null;
     }
 
-    function handleCarousel() {
-        carouselProgress = 0;
-        console.log("Carousel auto-advancing; loop detection active");
-
-        intervalId = setInterval(() => {
-            carouselProgress++;
-            if (carouselProgress >= imageCount) {
-                console.log("Carousel loop detected; moving to next video");
-                goToNext();
-                clearInterval(intervalId);
-            }
-        }, 4000); // 4-second check for TikTok's auto-advance timing
-    }
-
-    function goToNext() {
-        const nextButton = document.querySelector('button[data-e2e="arrow-right"]');
+    // Function to go to the next video
+    function goToNextVideo() {
+        const nextButton = document.querySelector('[data-e2e="arrow-right"]');
         if (nextButton) {
-            console.log('Scrolling to next video');
+            console.log("Next button identified, advancing to next video.");
             nextButton.click();
         } else {
-            console.log('Next button not found');
+            console.log("Next button not found.");
         }
     }
 
-    function handleMedia() {
-        isCarousel = detectCarousel();
-        if (isCarousel) {
-            if (imageCount === 1) {
-                console.log("Single image detected; advancing in 4 seconds");
-                setTimeout(goToNext, 4000); // 4-second wait for single image
-            } else {
-                handleCarousel(); // Detect loop for multi-image carousel
-            }
+    // Main function to control video/carousel navigation
+    function handleContent() {
+        if (isCarousel()) {
+            console.log("Carousel detected. Advancing after 10 seconds.");
+            setTimeout(goToNextVideo, 10000); // 10 seconds delay for carousels
         } else {
+            console.log("Regular video detected. Monitoring for video end.");
             const video = document.querySelector('video');
             if (video) {
-                video.removeEventListener('ended', goToNext);
-                video.addEventListener('ended', goToNext);
-                console.log("Video detected; will scroll on end");
+                video.addEventListener('ended', () => {
+                    console.log("Video ended, advancing to next.");
+                    goToNextVideo();
+                }, { once: true });
             }
         }
     }
 
-    function observeNewMedia() {
-        const observer = new MutationObserver(() => {
-            clearInterval(intervalId); // Clear previous interval when detecting new media
-            handleMedia();
+    // Detect new content when it becomes visible
+    let observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.addedNodes.length > 0) {
+                console.log("New content detected, preparing script to run...");
+                handleContent();
+            }
         });
-        observer.observe(document.body, { childList: true, subtree: true });
-    }
+    });
 
-    observeNewMedia(); // Start script
+    // Observe changes in the main feed container
+    const feedContainer = document.querySelector('[data-e2e="feed-container"]');
+    if (feedContainer) {
+        observer.observe(feedContainer, { childList: true, subtree: true });
+        console.log("Observation initiated on feed container.");
+    } else {
+        console.log("Feed container not found; observer could not be initialized.");
+    }
 })();
