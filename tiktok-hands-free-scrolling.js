@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TikTok Auto Next on Video End with Delay
 // @namespace    http://tampermonkey.net/
-// @version      0.8
+// @version      0.9
 // @description  Automatically scroll to the next video on TikTok when the current video ends, with a delay to ensure video length loads
 // @author       theCaravan
 // @match        *://www.tiktok.com/*
@@ -10,55 +10,63 @@
 (function() {
     'use strict';
 
-    let currentVideo = null; // Track the current video
-
     function setupVideoEndListener(video) {
-        if (!video || video === currentVideo) return; // Skip if it's the same video
-
-        currentVideo = video; // Update the current video reference
-
-        // Remove existing event listeners to avoid duplicates
+        if (!video) return;
         video.removeEventListener('ended', handleVideoEnd);
-
-        // Add event listener for video end
-        setTimeout(() => {
-            video.addEventListener('ended', handleVideoEnd);
-        }, 3000); // 3 second delay for video length to load
+        video.addEventListener('ended', handleVideoEnd);
     }
 
     function handleVideoEnd() {
         try {
-            const video = document.querySelector('video');
             const nextButton = document.querySelector('button[data-e2e="arrow-right"]');
-
-            if (video) {
-                console.log('Video ended: ', video.currentTime, 'of', video.duration, 'seconds');
-            }
-
             if (nextButton) {
-                console.log('Next button found, clicking...');
+                console.log('Next button pressed');
                 nextButton.click();
             } else {
                 console.log('Next button not found');
             }
         } catch (error) {
-            console.error('Error occurred during video end handling:', error);
+            console.error('Error during video end handling:', error);
         }
     }
 
-    function observeNewVideos() {
+    function detectCarouselLoop() {
+        const paginationDots = document.querySelectorAll('.css-1n2xfd8-DivDot'); // Active dot selector
+        if (paginationDots.length <= 1) return; // Skip if only one image in the carousel
+
+        // Check if the first dot is currently active, indicating we're at the start of the carousel
+        const isFirstDotActive = paginationDots[0].classList.contains('css-1wtwqpy-DivDot'); // Adjust if TikTok's active class name changes
+        if (isFirstDotActive) {
+            console.log('Carousel loop detected; scrolling to next video');
+            scrollToNext();
+        }
+    }
+
+    function scrollToNext() {
+        const nextButton = document.querySelector('button[data-e2e="arrow-right"]');
+        if (nextButton) {
+            console.log('Advancing to next video');
+            nextButton.click();
+        } else {
+            console.log('Next button not found');
+        }
+    }
+
+    function observePage() {
         const observer = new MutationObserver(() => {
             const video = document.querySelector('video');
-
-            // Only react if a new video is detected, and ensure we haven't already processed it
-            if (video && video !== currentVideo) {
+            if (video) {
                 setupVideoEndListener(video);
             }
-        });
 
+            const carousel = document.querySelector('.css-1afuipw-DivPhotoControl'); // Image carousel container
+            if (carousel) {
+                console.log('Carousel detected, monitoring for loop to first image');
+                detectCarouselLoop();
+            }
+        });
         observer.observe(document.body, { childList: true, subtree: true });
     }
 
-    // Initial setup
-    observeNewVideos();
+    observePage();
 })();
