@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TikTok Auto Next on Video End with Delay
 // @namespace    http://tampermonkey.net/
-// @version      0.18
+// @version      0.19
 // @description  Automatically scroll to the next video on TikTok when the current video ends, with a delay to ensure video length loads
 // @author       theCaravan
 // @match        *://www.tiktok.com/*
@@ -36,7 +36,7 @@
 
         // Only log the video detection once for a new video
         if (video && videoUrl !== lastVideoUrl) {
-            console.log('Video detected:', videoUrl);
+            //console.log('Video detected:', videoUrl);
             lastVideoUrl = videoUrl; // Update the last video URL
         }
     }
@@ -95,6 +95,8 @@
                     setupVideoEndListener(video);
                 }
             }
+
+            console.log("here")
 
             // Check if the page is a photo carousel
             if (isPhotoCarouselPage()) {
