@@ -1,17 +1,19 @@
 // ==UserScript==
 // @name         TikTok Auto Next on Video End with Delay
 // @namespace    http://tampermonkey.net/
-// @version      0.17
+// @version      0.18
 // @description  Automatically scroll to the next video on TikTok when the current video ends, with a delay to ensure video length loads
 // @author       theCaravan
 // @match        *://www.tiktok.com/*
 // @grant        none
 // ==/UserScript==
 // ==/UserScript==
+// ==/UserScript==
 (function() {
     'use strict';
 
     let carouselLogged = false; // Flag to track if the carousel has been logged
+    let lastVideoUrl = ''; // Variable to track the last video URL to avoid multiple detections
 
     // Function to detect if the current URL is a TikTok video URL
     function isVideoPage() {
@@ -20,11 +22,22 @@
         return regex.test(url);
     }
 
+    // Function to detect if the current URL is a TikTok photo carousel URL
+    function isPhotoCarouselPage() {
+        const url = window.location.href;
+        const regex = /https:\/\/www\.tiktok\.com\/@[^\/]+\/photo\/\d+/; // Regex to match TikTok photo carousel URL
+        return regex.test(url);
+    }
+
     // Function to detect and log video detection
     function logVideoDetection() {
         const video = document.querySelector('video');
-        if (video) {
-            console.log('Video detected:', window.location.href);
+        const videoUrl = window.location.href;
+
+        // Only log the video detection once for a new video
+        if (video && videoUrl !== lastVideoUrl) {
+            console.log('Video detected:', videoUrl);
+            lastVideoUrl = videoUrl; // Update the last video URL
         }
     }
 
@@ -35,7 +48,7 @@
         // Add an event listener to detect when the video ends, with a delay to ensure the video length has loaded
         setTimeout(() => {
             video.addEventListener('ended', handleVideoEnd);
-        }, 5000); // 5 second delay
+        }, 3000); // 3 second delay
     }
 
     function handleVideoEnd() {
@@ -81,8 +94,11 @@
                 if (video) {
                     setupVideoEndListener(video);
                 }
+            }
 
-                // Check if a carousel is detected
+            // Check if the page is a photo carousel
+            if (isPhotoCarouselPage()) {
+                // Only log and handle the carousel if it's a photo carousel
                 if (isCarousel()) {
                     console.log('Carousel detected, setting up carousel auto-advance.');
                     setTimeout(() => {
