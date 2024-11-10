@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TikTok Auto Next on Video End with Delay
 // @namespace    http://tampermonkey.net/
-// @version      0.14
+// @version      0.15
 // @description  Automatically scroll to the next video on TikTok when the current video ends, with a delay to ensure video length loads
 // @author       theCaravan
 // @match        *://www.tiktok.com/*
@@ -28,8 +28,7 @@
 
     function observeNewMedia() {
         const observer = new MutationObserver(() => {
-            clearInterval(intervalId); // Clear previous interval when detecting new media
-            handleContent();
+            handleContent(); // Just call handleContent directly when mutation occurs
         });
 
         // Observe changes on the entire body
