@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TikTok Auto Next on Video End with Delay
 // @namespace    http://tampermonkey.net/
-// @version      0.6
+// @version      0.7
 // @description  Automatically scroll to the next video on TikTok when the current video ends, with a delay to ensure video length loads
 // @author       theCaravan
 // @match        *://www.tiktok.com/*
@@ -10,17 +10,19 @@
 (function() {
     'use strict';
 
-    function setupVideoEndListener(video) {
-        if (!video) return;
+    let currentVideo = null; // Keep track of the current video
 
-        console.log('Preparing script to run for video: ', video.src);
+    function setupVideoEndListener(video) {
+        if (!video || video === currentVideo) return; // If it's the same video, don't proceed
+
+        currentVideo = video; // Update current video reference
+
         // Remove any existing event listeners to avoid duplicates
         video.removeEventListener('ended', handleVideoEnd);
 
         // Add an event listener to detect when the video ends, with a delay to ensure the video length has loaded
         setTimeout(() => {
             video.addEventListener('ended', handleVideoEnd);
-            console.log('Event listener for video end added');
         }, 3000); // 3 second delay
     }
 
@@ -34,9 +36,8 @@
             }
 
             if (nextButton) {
-                console.log('Next button found, attempting to click.');
+                console.log('Next button found, clicking...');
                 nextButton.click();
-                console.log('Next button pressed');
             } else {
                 console.log('Next button not found');
             }
@@ -48,17 +49,19 @@
     function observeNewVideos() {
         const observer = new MutationObserver(() => {
             const video = document.querySelector('video');
-            if (video) {
-                console.log('New video detected');
+
+            // If a new video is detected and it’s not the same as the current one, set it up
+            if (video && video !== currentVideo) {
+                console.log('New video detected, preparing script to run...');
                 setupVideoEndListener(video);
             } else {
-                console.log('No video detected, waiting for new video');
+                console.log('No new video detected or video already processed.');
             }
         });
+
         observer.observe(document.body, { childList: true, subtree: true });
     }
 
     // Initial setup
-    console.log('Script is running');
     observeNewVideos();
 })();
