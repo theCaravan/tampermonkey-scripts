@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TikTok Auto Next on Video End with Delay
 // @namespace    http://tampermonkey.net/
-// @version      0.9
+// @version      0.10
 // @description  Automatically scroll to the next video on TikTok when the current video ends, with a delay to ensure video length loads
 // @author       theCaravan
 // @match        *://www.tiktok.com/*
@@ -10,63 +10,72 @@
 (function() {
     'use strict';
 
-    function setupVideoEndListener(video) {
-        if (!video) return;
-        video.removeEventListener('ended', handleVideoEnd);
-        video.addEventListener('ended', handleVideoEnd);
+    let isCarousel = false;
+    let intervalId;
+    let imageCount = 0;
+
+    function detectCarousel() {
+        const carouselControl = document.querySelector('.css-1afuipw-DivPhotoControl');
+        if (carouselControl) {
+            const paginationDots = carouselControl.querySelectorAll('.css-1jirnpf-DivDotWrapper, .css-19ikq1l-DivDotWrapper');
+            imageCount = paginationDots.length;
+            console.log('Carousel detected with', imageCount, 'images');
+            return imageCount > 0;
+        }
+        return false;
     }
 
-    function handleVideoEnd() {
-        try {
-            const nextButton = document.querySelector('button[data-e2e="arrow-right"]');
-            if (nextButton) {
-                console.log('Next button pressed');
-                nextButton.click();
-            } else {
-                console.log('Next button not found');
+    function handleCarousel() {
+        let currentIndex = 0;
+        console.log("Carousel auto-advancing; loop detection active");
+
+        intervalId = setInterval(() => {
+            currentIndex++;
+            if (currentIndex >= imageCount) {
+                currentIndex = 0; // Loop back to start
+                console.log("Carousel loop detected; moving to next video");
+                goToNext();
+                clearInterval(intervalId);
             }
-        } catch (error) {
-            console.error('Error during video end handling:', error);
-        }
+        }, 4000); // Check every 4 seconds to match TikTok's auto-advance timing
     }
 
-    function detectCarouselLoop() {
-        const paginationDots = document.querySelectorAll('.css-1n2xfd8-DivDot'); // Active dot selector
-        if (paginationDots.length <= 1) return; // Skip if only one image in the carousel
-
-        // Check if the first dot is currently active, indicating we're at the start of the carousel
-        const isFirstDotActive = paginationDots[0].classList.contains('css-1wtwqpy-DivDot'); // Adjust if TikTok's active class name changes
-        if (isFirstDotActive) {
-            console.log('Carousel loop detected; scrolling to next video');
-            scrollToNext();
-        }
-    }
-
-    function scrollToNext() {
+    function goToNext() {
         const nextButton = document.querySelector('button[data-e2e="arrow-right"]');
         if (nextButton) {
-            console.log('Advancing to next video');
+            console.log('Scrolling to next video');
             nextButton.click();
         } else {
             console.log('Next button not found');
         }
     }
 
-    function observePage() {
-        const observer = new MutationObserver(() => {
+    function handleMedia() {
+        isCarousel = detectCarousel();
+        if (isCarousel) {
+            if (imageCount === 1) {
+                console.log("Single image detected; waiting to scroll");
+                setTimeout(goToNext, 5000); // 5-second wait for single image
+            } else {
+                handleCarousel(); // Detect loop for multi-image
+            }
+        } else {
             const video = document.querySelector('video');
             if (video) {
-                setupVideoEndListener(video);
+                video.removeEventListener('ended', goToNext);
+                video.addEventListener('ended', goToNext);
+                console.log("Video detected; will scroll on end");
             }
+        }
+    }
 
-            const carousel = document.querySelector('.css-1afuipw-DivPhotoControl'); // Image carousel container
-            if (carousel) {
-                console.log('Carousel detected, monitoring for loop to first image');
-                detectCarouselLoop();
-            }
+    function observeNewMedia() {
+        const observer = new MutationObserver(() => {
+            clearInterval(intervalId); // Clear previous interval when detecting new media
+            handleMedia();
         });
         observer.observe(document.body, { childList: true, subtree: true });
     }
 
-    observePage();
+    observeNewMedia(); // Start script
 })();
