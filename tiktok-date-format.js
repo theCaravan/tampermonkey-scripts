@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @version      0.6
 // @description  Change relative "Xd ago" format to "M-d" format on TikTok, including hours and minutes with time.
-// @author       YourName
+// @author       theCaravan
 // @match        https://www.tiktok.com/*
 // @grant        none
 // ==/UserScript==
