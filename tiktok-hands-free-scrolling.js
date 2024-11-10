@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TikTok Auto Next on Video End with Delay
 // @namespace    http://tampermonkey.net/
-// @version      0.13
+// @version      0.14
 // @description  Automatically scroll to the next video on TikTok when the current video ends, with a delay to ensure video length loads
 // @author       theCaravan
 // @match        *://www.tiktok.com/*
@@ -10,23 +10,6 @@
 (function () {
     'use strict';
 
-    // Function to detect carousel elements on the page
-    function isCarousel() {
-        return document.querySelector('.css-1qe8vby-DivPaginationWrapper') !== null;
-    }
-
-    // Function to go to the next video
-    function goToNextVideo() {
-        const nextButton = document.querySelector('[data-e2e="arrow-right"]');
-        if (nextButton) {
-            console.log("Next button identified, advancing to next video.");
-            nextButton.click();
-        } else {
-            console.log("Next button not found.");
-        }
-    }
-
-    // Main function to control video/carousel navigation
     function handleContent() {
         if (isCarousel()) {
             console.log("Carousel detected. Advancing after 10 seconds.");
@@ -43,22 +26,33 @@
         }
     }
 
-    // Detect new content when it becomes visible
-    let observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.addedNodes.length > 0) {
-                console.log("New content detected, preparing script to run...");
-                handleContent();
-            }
+    function observeNewMedia() {
+        const observer = new MutationObserver(() => {
+            clearInterval(intervalId); // Clear previous interval when detecting new media
+            handleContent();
         });
-    });
 
-    // Observe changes in the main feed container
-    const feedContainer = document.querySelector('[data-e2e="feed-container"]');
-    if (feedContainer) {
-        observer.observe(feedContainer, { childList: true, subtree: true });
-        console.log("Observation initiated on feed container.");
-    } else {
-        console.log("Feed container not found; observer could not be initialized.");
+        // Observe changes on the entire body
+        observer.observe(document.body, { childList: true, subtree: true });
+        console.log("Observation started on the entire body.");
     }
+
+    function isCarousel() {
+        // Check if carousel pagination dots are present
+        return document.querySelector('.css-1qe8vby-DivPaginationWrapper') !== null;
+    }
+
+    function goToNextVideo() {
+        const nextButton = document.querySelector('[data-e2e="arrow-right"]');
+        if (nextButton) {
+            console.log("Next button identified, advancing to next video.");
+            nextButton.click();
+        } else {
+            console.log("Next button not found.");
+        }
+    }
+
+    // Attempt to observe changes in the body
+    observeNewMedia(); // Start observing changes on the entire body
+
 })();
