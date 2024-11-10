@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TikTok Auto Next on Video End with Delay
 // @namespace    http://tampermonkey.net/
-// @version      0.7
+// @version      0.8
 // @description  Automatically scroll to the next video on TikTok when the current video ends, with a delay to ensure video length loads
 // @author       theCaravan
 // @match        *://www.tiktok.com/*
@@ -10,20 +10,20 @@
 (function() {
     'use strict';
 
-    let currentVideo = null; // Keep track of the current video
+    let currentVideo = null; // Track the current video
 
     function setupVideoEndListener(video) {
-        if (!video || video === currentVideo) return; // If it's the same video, don't proceed
+        if (!video || video === currentVideo) return; // Skip if it's the same video
 
-        currentVideo = video; // Update current video reference
+        currentVideo = video; // Update the current video reference
 
-        // Remove any existing event listeners to avoid duplicates
+        // Remove existing event listeners to avoid duplicates
         video.removeEventListener('ended', handleVideoEnd);
 
-        // Add an event listener to detect when the video ends, with a delay to ensure the video length has loaded
+        // Add event listener for video end
         setTimeout(() => {
             video.addEventListener('ended', handleVideoEnd);
-        }, 3000); // 3 second delay
+        }, 3000); // 3 second delay for video length to load
     }
 
     function handleVideoEnd() {
@@ -50,12 +50,9 @@
         const observer = new MutationObserver(() => {
             const video = document.querySelector('video');
 
-            // If a new video is detected and it’s not the same as the current one, set it up
+            // Only react if a new video is detected, and ensure we haven't already processed it
             if (video && video !== currentVideo) {
-                console.log('New video detected, preparing script to run...');
                 setupVideoEndListener(video);
-            } else {
-                console.log('No new video detected or video already processed.');
             }
         });
 
