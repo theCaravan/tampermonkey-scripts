@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TikTok Auto Next on Video End with Delay
 // @namespace    http://tampermonkey.net/
-// @version      0.11
+// @version      0.12
 // @description  Automatically scroll to the next video on TikTok when the current video ends, with a delay to ensure video length loads
 // @author       theCaravan
 // @match        *://www.tiktok.com/*
@@ -16,9 +16,10 @@
     let carouselProgress = 0;
 
     function detectCarousel() {
-        const carouselControl = document.querySelector('.css-1afuipw-DivPhotoControl');
-        if (carouselControl) {
-            const paginationDots = carouselControl.querySelectorAll('.css-1jirnpf-DivDotWrapper, .css-19ikq1l-DivDotWrapper');
+        // Locate the pagination wrapper
+        const paginationWrapper = document.querySelector('.css-1qe8vby-DivPaginationWrapper .css-1jirnpf-DivDotWrapper, .css-19ikq1l-DivDotWrapper');
+        if (paginationWrapper) {
+            const paginationDots = paginationWrapper.parentElement.querySelectorAll('.css-1jirnpf-DivDotWrapper, .css-19ikq1l-DivDotWrapper');
             imageCount = paginationDots.length;
             console.log('Carousel detected with', imageCount, 'images');
             return imageCount > 0;
