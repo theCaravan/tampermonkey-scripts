@@ -7,8 +7,6 @@
 // @match        *://www.tiktok.com/*
 // @grant        none
 // ==/UserScript==
-// ==/UserScript==
-// ==/UserScript==
 (function() {
     'use strict';
 
