@@ -1,59 +1,57 @@
 // ==UserScript==
-// @name         TikTok Video Hands Free Scrolling
+// @name         TikTok Auto Next on Video End (SPA-compatible)
 // @namespace    http://tampermonkey.net/
-// @version      0.20
-// @description  Automatically scroll to the next video on TikTok when the current video ends, with a delay to ensure video length loads
+// @version      0.21
+// @description  Automatically move to the next video on TikTok when the current video ends, compatible with SPA sites
 // @author       theCaravan
-// @match        https://www.tiktok.com/@*/video/*
+// @match        *://www.tiktok.com/*
 // @grant        none
 // ==/UserScript==
+
 (function() {
     'use strict';
 
-    // Function to handle video end and trigger the next video button click
-    function setupVideoEndListener(video) {
-        if (!video) return;
-        // Remove any existing event listeners to avoid duplicates
-        video.removeEventListener('ended', handleVideoEnd);
-        // Add an event listener to detect when the video ends, with a delay to ensure the video length has loaded
-        setTimeout(() => {
-            video.addEventListener('ended', handleVideoEnd);
-        }, 3000); // 3 second delay to ensure video is fully loaded
+    // Function to check if the URL contains "/video/"
+    function isVideoPage() {
+        return window.location.href.includes("/video/");
     }
 
-    // Function to handle the end of a video
+    // Function to set up an event listener for the current video’s end
+    function setupVideoEndListener() {
+        const video = document.querySelector('video');
+        if (!video) return; // Exit if no video found
+
+        video.removeEventListener('ended', handleVideoEnd); // Avoid duplicate listeners
+        video.addEventListener('ended', handleVideoEnd); // Add listener for video end
+        console.log("Video end listener set up.");
+    }
+
+    // Function to handle video end
     function handleVideoEnd() {
-        try {
-            const video = document.querySelector('video');
-            const nextButton = document.querySelector('button[data-e2e="arrow-right"]');
-            if (video) {
-                console.log('Video ended: ', video.currentTime, 'of', video.duration, 'seconds');
-            }
-            if (nextButton) {
-                console.log('Next button pressed');
-                nextButton.click();
-            } else {
-                console.log('Next button not found');
-            }
-        } catch (error) {
-            console.error('Error occurred during video end handling:', error);
+        const nextButton = document.querySelector('button[data-e2e="arrow-right"]');
+        if (nextButton) {
+            console.log('Video ended: advancing to next video.');
+            nextButton.click();
+        } else {
+            console.log('Next button not found for video.');
         }
     }
 
-    // Observe new videos on the page
-    function observeNewVideos() {
-        const observer = new MutationObserver(() => {
-            const video = document.querySelector('video');
-            if (video) {
-                console.log('Video detected, preparing script to run...');
-                setupVideoEndListener(video);
+    // Detect URL changes in an SPA environment
+    function observeUrlChanges() {
+        let lastUrl = location.href;
+        new MutationObserver(() => {
+            const currentUrl = location.href;
+            if (currentUrl !== lastUrl) {
+                lastUrl = currentUrl;
+                if (isVideoPage()) {
+                    console.log("Video page detected, setting up video end listener.");
+                    setupVideoEndListener();
+                }
             }
-        });
-
-        // Start observing for changes in the document body
-        observer.observe(document.body, { childList: true, subtree: true });
+        }).observe(document, { subtree: true, childList: true });
     }
 
-    // Initial setup
-    observeNewVideos();
+    // Initialize the observer to detect URL changes
+    observeUrlChanges();
 })();
