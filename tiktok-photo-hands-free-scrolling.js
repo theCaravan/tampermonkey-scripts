@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TikTok Photo Hands-Free
 // @namespace    http://tampermonkey.net/
-// @version      0.4
+// @version      1.0
 // @description  Automatically advance TikTok photo carousels every 10 seconds on SPA sites
 // @author       theCaravan
 // @match        *://www.tiktok.com/*
@@ -11,7 +11,7 @@
 (function() {
     'use strict';
 
-    let countdown = 10;
+    let countdown = 12;
     let intervalId;
 
     // Check if the page is a photo carousel
@@ -23,7 +23,7 @@
     function advanceCarousel() {
         const nextButton = document.querySelector('button[data-e2e="arrow-right"]');
         if (nextButton) {
-            console.log('10 seconds passed. Advancing to the next image in the carousel.');
+            console.log('12 seconds passed. Advancing to the next image in the carousel.');
             nextButton.click();
         } else {
             console.log('Next button not found for carousel.');
@@ -31,21 +31,20 @@
         resetCountdown(); // Reset the countdown for the next image
     }
 
-    // Start the countdown and log time remaining
+    // Start the countdown for advancing the carousel
     function startCountdown() {
         intervalId = setInterval(() => {
             countdown -= 1;
-            console.log(`Advancing to next image in ${countdown} seconds...`);
             if (countdown <= 0) {
                 advanceCarousel();
             }
         }, 1000);
     }
 
-    // Reset countdown back to 10 seconds
+    // Reset countdown back to 12 seconds
     function resetCountdown() {
         clearInterval(intervalId);
-        countdown = 10;
+        countdown = 12;
         startCountdown();
     }
 
@@ -57,7 +56,7 @@
             if (currentUrl !== lastUrl) {
                 lastUrl = currentUrl;
                 if (isPhotoCarouselPage()) {
-                    console.log("Photo carousel detected. Starting 10-second countdown.");
+                    console.log("Photo carousel detected. Starting 12-second countdown.");
                     resetCountdown();
                 } else {
                     clearInterval(intervalId); // Stop countdown if not on a carousel page
