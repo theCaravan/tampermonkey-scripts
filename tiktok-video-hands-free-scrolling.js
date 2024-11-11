@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         TikTok Auto Next on Video End (SPA-compatible)
+// @name         TikTok Video Hands-Free
 // @namespace    http://tampermonkey.net/
-// @version      0.21
-// @description  Automatically move to the next video on TikTok when the current video ends, compatible with SPA sites
+// @version      0.22
+// @description  Automatically move to the next video on TikTok when the current video ends
 // @author       theCaravan
 // @match        *://www.tiktok.com/*
 // @grant        none
@@ -11,47 +11,67 @@
 (function() {
     'use strict';
 
-    // Function to check if the URL contains "/video/"
+    // Check if the page is a video page
     function isVideoPage() {
         return window.location.href.includes("/video/");
     }
 
-    // Function to set up an event listener for the current video’s end
-    function setupVideoEndListener() {
-        const video = document.querySelector('video');
-        if (!video) return; // Exit if no video found
-
-        video.removeEventListener('ended', handleVideoEnd); // Avoid duplicate listeners
-        video.addEventListener('ended', handleVideoEnd); // Add listener for video end
-        console.log("Video end listener set up.");
-    }
-
-    // Function to handle video end
+    // Function to handle the video end event
     function handleVideoEnd() {
+        console.log("Video 'ended' event caught.");
         const nextButton = document.querySelector('button[data-e2e="arrow-right"]');
         if (nextButton) {
-            console.log('Video ended: advancing to next video.');
+            console.log('Next button found, clicking to go to the next video.');
             nextButton.click();
         } else {
-            console.log('Next button not found for video.');
+            console.log('Next button not found on video end.');
         }
     }
 
-    // Detect URL changes in an SPA environment
-    function observeUrlChanges() {
-        let lastUrl = location.href;
-        new MutationObserver(() => {
-            const currentUrl = location.href;
-            if (currentUrl !== lastUrl) {
-                lastUrl = currentUrl;
-                if (isVideoPage()) {
-                    console.log("Video page detected, setting up video end listener.");
-                    setupVideoEndListener();
-                }
-            }
-        }).observe(document, { subtree: true, childList: true });
+    // Function to set up the video end listener
+    function setupVideoEndListener(video) {
+        if (!video) return;
+
+        // Remove any existing event listeners to avoid duplicates
+        video.removeEventListener('ended', handleVideoEnd);
+
+        // Add an event listener to detect when the video ends
+        video.addEventListener('ended', handleVideoEnd);
+        console.log("Video 'ended' event listener added.");
     }
 
-    // Initialize the observer to detect URL changes
-    observeUrlChanges();
+    // Function to observe new videos on the page
+    function observeNewVideos() {
+        const observer = new MutationObserver(() => {
+            if (isVideoPage()) {
+                console.log("Video page detected, checking for video and next button.");
+
+                const video = document.querySelector('video');
+                if (video) {
+                    if (!video.paused) {
+                        console.log('Video detected and currently playing.');
+                    } else {
+                        console.log('Video detected but not playing yet.');
+                    }
+
+                    const nextButton = document.querySelector('button[data-e2e="arrow-right"]');
+                    if (nextButton) {
+                        console.log("Next button detected on video page.");
+                    } else {
+                        console.log("Next button not detected on video page.");
+                    }
+
+                    setupVideoEndListener(video);
+                } else {
+                    console.log('No video element found on page.');
+                }
+            }
+        });
+        
+        // Observe changes to the body for new videos (SPA support)
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
+
+    // Start observing for videos
+    observeNewVideos();
 })();
