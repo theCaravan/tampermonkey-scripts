@@ -1,19 +1,19 @@
 // ==UserScript==
 // @name         TikTok Video Reminder Removal
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      1.0
 // @description  Remove video reminder section if found on TikTok
 // @author       You
 // @match        https://www.tiktok.com/*
 // @grant        none
 // ==/UserScript==
 
-(function() {
+(function () {
     'use strict';
 
-    // Function to remove the tux-portal-container div if it exists
+    // Function to remove the tux-portal-container div by ID
     function removeTuxPortalContainer() {
-        const tuxPortalContainer = document.querySelector('.tux-portal-container');
+        const tuxPortalContainer = document.getElementById('tux-portal-container'); // Use ID selector
         if (tuxPortalContainer) {
             console.log('tux-portal-container found, removing...');
             tuxPortalContainer.remove(); // Removes the element and its children
