@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TikTok Photo Hands-Free
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      2.0
 // @description  Automatically advance TikTok photo carousels every 10 seconds on SPA sites
 // @author       theCaravan
 // @match        *://www.tiktok.com/*
@@ -21,7 +21,8 @@
 
     // Function to advance to the next image in the carousel
     function advanceCarousel() {
-        const nextButton = document.querySelector('button[data-e2e="arrow-right"]');
+        const navigationContainer = document.querySelector('.css-1o2f1ti-DivFeedNavigationContainer');
+        const nextButton = navigationContainer.querySelectorAll('button')[1];
         if (nextButton) {
             console.log('12 seconds passed. Advancing to the next image in the carousel.');
             nextButton.click();
