@@ -1,30 +1,35 @@
 // ==UserScript==
 // @name         TikTok Date Format Changer
 // @namespace    http://tampermonkey.net/
-// @version      0.10
+// @version      1.0
 // @description  Change relative "Xd ago" format to "M-d" format on TikTok, including hours and minutes with time.
 // @author       theCaravan
 // @match        https://www.tiktok.com/*
 // @grant        none
 // ==/UserScript==
 
-(function() {
+(function () {
     'use strict';
 
     function convertRelativeToAbsolute() {
         const elements = document.querySelectorAll('div.css-1mnwhn0-DivAuthorContainer a');
-    
+
         elements.forEach(el => {
+            // Skip elements that have already been processed
+            if (el.hasAttribute('data-processed')) {
+                return;
+            }
+
             const text = el.textContent.trim();
             const match = text.match(/(\d+)([a-z]) ago$/);
-            console.log(match)
-    
+            console.log(match);
+
             if (match) {
-                const [ , valueString, unit ] = match;
+                const [, valueString, unit] = match;
                 const value = parseInt(valueString, 10);
                 const now = new Date();
                 let date;
-    
+
                 switch (unit) {
                     case 'd': // Days
                         date = new Date(now);
@@ -45,13 +50,16 @@
                     default:
                         return; // Skip if the unit doesn't match known cases
                 }
-                
+
                 // Format the date as M-d or M-d HH:mm for recent posts
                 const formattedDate = `${date.getMonth() + 1}-${date.getDate()}`;
                 const formattedTime = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 
                 // Set the content based on the unit
                 el.textContent = (unit === 'h' || unit === 'm') ? `${formattedDate} ${formattedTime}` : formattedDate;
+
+                // Tag the element as processed
+                el.setAttribute('data-processed', 'true');
             }
         });
     }
@@ -62,5 +70,4 @@
 
     // Initial conversion on page load
     convertRelativeToAbsolute();
-
 })();
