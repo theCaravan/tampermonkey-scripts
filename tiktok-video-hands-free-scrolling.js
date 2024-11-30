@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         TikTok Video Hands-Free
 // @namespace    http://tampermonkey.net/
-// @version      2.1
+// @version      2.2
 // @description  Automatically move to the next video on TikTok when the current video ends
 // @author       theCaravan
 // @match        *://www.tiktok.com/*
 // @grant        none
 // ==/UserScript==
 
-(function() {
+(function () {
     'use strict';
 
     function isVideoPage() {
@@ -19,7 +19,7 @@
     function handleVideoEnd() {
         console.log("Video 'ended' event caught.");
         const navigationContainer = document.querySelector('.css-1o2f1ti-DivFeedNavigationContainer');
-        const nextButton = navigationContainer.querySelectorAll('button')[1];
+        const nextButton = navigationContainer ? navigationContainer.querySelectorAll('button')[1] : null;
         if (nextButton) {
             console.log('Next button found, clicking to go to the next video.');
             nextButton.click();
@@ -44,14 +44,14 @@
         const observer = new MutationObserver(() => {
             if (isVideoPage()) {
                 const video = document.querySelector('video');
-                setupVideoEndListener(video);
-                
+                if (video) {
+                    setupVideoEndListener(video);
                 } else {
                     console.log('No video element found on page.');
                 }
             }
         });
-        
+
         // Observe changes to the body for new videos (SPA support)
         observer.observe(document.body, { childList: true, subtree: true });
     }
