@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TikTok Date Format Changer
 // @namespace    http://tampermonkey.net/
-// @version      0.9
+// @version      0.10
 // @description  Change relative "Xd ago" format to "M-d" format on TikTok, including hours and minutes with time.
 // @author       theCaravan
 // @match        https://www.tiktok.com/*
@@ -16,7 +16,7 @@
     
         elements.forEach(el => {
             const text = el.textContent.trim();
-            const match = text.match(/^(\d+)([a-z]) ago$/);
+            const match = text.match(/(\d+)([a-z]) ago$/);
             console.log(match)
     
             if (match) {
