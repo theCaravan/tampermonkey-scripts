@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TikTok Video Hands-Free
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      2.0
 // @description  Automatically move to the next video on TikTok when the current video ends
 // @author       theCaravan
 // @match        *://www.tiktok.com/*
@@ -19,7 +19,8 @@
     // Function to handle the video end event
     function handleVideoEnd() {
         console.log("Video 'ended' event caught.");
-        const nextButton = document.querySelector('button[data-e2e="arrow-right"]');
+        const navigationContainer = document.querySelector('.css-1o2f1ti-DivFeedNavigationContainer');
+        const nextButton = navigationContainer.querySelectorAll('button')[1];
         if (nextButton) {
             console.log('Next button found, clicking to go to the next video.');
             nextButton.click();
