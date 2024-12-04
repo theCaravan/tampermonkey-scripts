@@ -1,54 +1,46 @@
 // ==UserScript==
 // @name         TikTok Date Format Changer
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  Change relative "Xd ago" format to "M-d" format on TikTok, including hours and minutes with time.
 // @author       theCaravan
 // @match        https://www.tiktok.com/*
 // @grant        none
 // ==/UserScript==
 
-(function () {
+(function() {
     'use strict';
 
     function convertRelativeToAbsolute() {
-        const elements = document.querySelectorAll('div.css-1mnwhn0-DivAuthorContainer a');
+        const elements = document.querySelectorAll('span[data-e2e="browser-nickname"] span:not([data-e2e])');
 
         elements.forEach(el => {
-            // Skip elements that have already been processed
-            if (el.hasAttribute('data-processed')) {
-                return;
-            }
-
             const text = el.textContent.trim();
-            const match = text.match(/(\d+)([a-z]) ago$/);
-            console.log(match);
+            const match = text.match(/^(\d+)([a-z]+) ago$/);
 
             if (match) {
-                const [, valueString, unit] = match;
-                const value = parseInt(valueString, 10);
+                const [, value, unit] = match;
                 const now = new Date();
                 let date;
 
                 switch (unit) {
-                    case 'd': // Days
-                        date = new Date(now);
-                        date.setDate(date.getDate() - value);
+                    case 'd':
+                        date = new Date(now.setDate(now.getDate() - value));
                         break;
-                    case 'w': // Weeks
-                        date = new Date(now);
-                        date.setDate(date.getDate() - value * 7);
+                    case 'w':
+                        date = new Date(now.setDate(now.getDate() - value * 7));
                         break;
-                    case 'm': // Minutes
-                        date = new Date(now);
-                        date.setMinutes(date.getMinutes() - value);
+                    case 'm':
+                        date = new Date(now.setMonth(now.getMonth() - value));
                         break;
-                    case 'h': // Hours
-                        date = new Date(now);
-                        date.setHours(date.getHours() - value);
+                    case 'h':
+                        date = new Date(now.setHours(now.getHours() - value));
+                        break;
+                    case 'm':
+                        date = new Date(now.setMinutes(now.getMinutes() - value));
                         break;
                     default:
-                        return; // Skip if the unit doesn't match known cases
+                        return;
                 }
 
                 // Format the date as M-d or M-d HH:mm for recent posts
@@ -57,9 +49,6 @@
 
                 // Set the content based on the unit
                 el.textContent = (unit === 'h' || unit === 'm') ? `${formattedDate} ${formattedTime}` : formattedDate;
-
-                // Tag the element as processed
-                el.setAttribute('data-processed', 'true');
             }
         });
     }
@@ -70,4 +59,5 @@
 
     // Initial conversion on page load
     convertRelativeToAbsolute();
+
 })();
