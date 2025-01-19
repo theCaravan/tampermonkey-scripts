@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Instagram Reel Hands-Free Auto-Advance with Auto-Unmute
 // @namespace    http://tampermonkey.net/
-// @version      1.7
+// @version      1.8
 // @description  Auto-advance to the next Instagram reel when the current one ends and unmute audio automatically
 // @author       theCaravan
 // @match        *://www.instagram.com/*
@@ -119,7 +119,17 @@
         });
     }
 
-    // Start observing reels
+    // Periodic check to unmute the video if it is muted
+    function ensureUnmute() {
+        const video = findVideoElement();
+        if (video && video.muted) {
+            console.log("Video is muted. Unmuting...");
+            unmuteVideo();
+        }
+    }
+
+    // Start observing reels and check unmute every second
     observeReels();
+    setInterval(ensureUnmute, 500); // Check every second to ensure the video remains unmuted
 
 })();
