@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TikTok Video Go Forward
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  Automatically move to the next video on TikTok when the current video ends
 // @author       theCaravan (Modified by you)
 // @match        *://www.tiktok.com/*
