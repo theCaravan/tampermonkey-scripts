@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TikTok Video Hands Free (Normal)
 // @namespace    http://tampermonkey.net/
-// @version      1.2
+// @version      1.4
 // @description  Automatically move to the older video (downward in feed) on TikTok when the current video ends
 // @author       theCaravan (Modified by you)
 // @match        *://www.tiktok.com/*
@@ -21,11 +21,18 @@
         // First try the new navigation button (down arrow in the navigation container)
         const newNavContainer = document.querySelector('.css-1o2f1ti-DivFeedNavigationContainer');
         if (newNavContainer) {
-            const downButton = newNavContainer.querySelector('button:last-child');
+            // Get all buttons and find the down button (second one with down arrow icon)
+            const buttons = newNavContainer.querySelectorAll('button');
+            const downButton = buttons[1]; // Second button (index 1) should be the down button
+            
             if (downButton) {
-                console.log('Down navigation button found, clicking to go to the older video.');
-                downButton.click();
-                return;
+                // Check if it contains the down arrow icon
+                const downIconSVG = downButton.querySelector('svg path[d^="m24 27.76"]');
+                if (downIconSVG) {
+                    console.log('Down navigation button found, clicking to go to the older video.');
+                    downButton.click();
+                    return;
+                }
             }
         }
         
