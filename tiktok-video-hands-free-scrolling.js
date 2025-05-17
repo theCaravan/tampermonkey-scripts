@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         TikTok Video Go Forward
+// @name         TikTok Video Hands Free (Normal)
 // @namespace    http://tampermonkey.net/
-// @version      1.1
-// @description  Automatically move to the next video on TikTok when the current video ends
+// @version      1.2
+// @description  Automatically move to the older video (downward in feed) on TikTok when the current video ends
 // @author       theCaravan (Modified by you)
 // @match        *://www.tiktok.com/*
 // @grant        none
@@ -23,7 +23,7 @@
         if (newNavContainer) {
             const downButton = newNavContainer.querySelector('button:last-child');
             if (downButton) {
-                console.log('New down navigation button found, clicking to go to the next video.');
+                console.log('Down navigation button found, clicking to go to the older video.');
                 downButton.click();
                 return;
             }
@@ -32,10 +32,10 @@
         // Fall back to the original method if new navigation not found
         const nextButton = document.querySelector('button[data-e2e="arrow-right"]');
         if (nextButton) {
-            console.log('Next button found, clicking to go to the next video.');
+            console.log('Next button found, clicking to go to the older video.');
             nextButton.click();
         } else {
-            console.log('Neither new navigation nor next button found on video end.');
+            console.log('Neither down navigation nor next button found on video end.');
         }
     }
     
