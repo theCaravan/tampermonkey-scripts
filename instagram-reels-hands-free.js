@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Instagram Reel Auto-Advance & Auto-Unmute
 // @namespace    http://tampermonkey.net/
-// @version      5.1
+// @version      5.3
 // @description  Auto-advance reels, unmute video and remove blocking divs without logging
 // @match        *://www.instagram.com/*
 // @grant        none
@@ -39,15 +39,10 @@
     function unmuteVideo(video) {
         if (!video) return;
 
-        // Force unmute continuously
         video.muted = false;
         video.volume = 1;
         video.controls = true;
 
-        // Try to play in case paused
-        video.play().catch(() => {});
-
-        // Remove blocking divs
         const blockingDivs = document.querySelectorAll('div[data-instancekey^="id-vpuid-"]');
         blockingDivs.forEach(div => {
             while (div.firstChild) {
@@ -65,12 +60,20 @@
                 lastVideo = video;
                 setupVideoListeners(video);
                 unmuteVideo(video);
-            } else if (video) {
-                // If same video, keep forcing unmute in case Instagram resets it
-                unmuteVideo(video);
             }
         }
     });
 
     observer.observe(document.body, { childList: true, subtree: true });
+
+    // Frequent polling every 500ms to keep unmuting active video
+    setInterval(() => {
+        if (isReelPage()) {
+            const video = findVideoElement();
+            if (video) {
+                unmuteVideo(video);
+            }
+        }
+    }, 500);
 })();
+
