@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Instagram Reels Hands Free
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      4.0
 // @description  Automatically advances to the next Instagram reel
 // @match        *://www.instagram.com/*
 // @grant        none
