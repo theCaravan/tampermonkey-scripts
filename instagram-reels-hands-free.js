@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Instagram Reels Hands Free
+// @name         Instagram Reel Auto-Advance & Auto-Unmute
 // @namespace    http://tampermonkey.net/
-// @version      4.0
-// @description  Automatically advances to the next Instagram reel
+// @version      5.1
+// @description  Auto-advance reels, unmute video and remove blocking divs without logging
 // @match        *://www.instagram.com/*
 // @grant        none
 // ==/UserScript==
@@ -11,7 +11,7 @@
     'use strict';
 
     function isReelPage() {
-        return window.location.href.includes("/reel/");
+        return !!document.querySelector('video[playsinline]');
     }
 
     function findVideoElement() {
@@ -31,22 +31,46 @@
 
     function setupVideoListeners(video) {
         if (!video) return;
+
         video.removeEventListener('ended', handleVideoEnd);
         video.addEventListener('ended', handleVideoEnd);
     }
 
-    function observeReels() {
-        const observer = new MutationObserver(() => {
-            if (isReelPage()) {
-                const video = findVideoElement();
-                if (video) {
-                    setupVideoListeners(video);
-                }
+    function unmuteVideo(video) {
+        if (!video) return;
+
+        // Force unmute continuously
+        video.muted = false;
+        video.volume = 1;
+        video.controls = true;
+
+        // Try to play in case paused
+        video.play().catch(() => {});
+
+        // Remove blocking divs
+        const blockingDivs = document.querySelectorAll('div[data-instancekey^="id-vpuid-"]');
+        blockingDivs.forEach(div => {
+            while (div.firstChild) {
+                div.firstChild.remove();
             }
         });
-
-        observer.observe(document.body, { childList: true, subtree: true });
     }
 
-    observeReels();
+    let lastVideo = null;
+
+    const observer = new MutationObserver(() => {
+        if (isReelPage()) {
+            const video = findVideoElement();
+            if (video && video !== lastVideo) {
+                lastVideo = video;
+                setupVideoListeners(video);
+                unmuteVideo(video);
+            } else if (video) {
+                // If same video, keep forcing unmute in case Instagram resets it
+                unmuteVideo(video);
+            }
+        }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
 })();
