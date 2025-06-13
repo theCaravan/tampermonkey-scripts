@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Clean Up LinkedIn Feed
 // @namespace    http://tampermonkey.net/
-// @version      1.1
-// @description  Removes Like/Comment/Share/Send bars and quick reply suggestions from LinkedIn posts
+// @version      1.2
+// @description  Removes various items from LinkedIn Feed
 // @author       theCaravan (GitHub)
 // @match        https://www.linkedin.com/*
 // @grant        none
@@ -11,17 +11,22 @@
 (function () {
     'use strict';
 
-    function removeElements() {
-        // Remove the social action bar
-        document.querySelectorAll('.feed-shared-social-action-bar').forEach(el => el.remove());
+    // List of selectors to remove from the page
+    const selectorsToRemove = [
+        '.feed-shared-social-action-bar',                 // Like / Comment / Share / Send
+        '.comments-quick-comments__container',            // Quick reply suggestions
+        '.share-box-feed-entry__closed-share-box',         // "Start a post" share box
+    ];
 
-        // Remove quick reply buttons under comments
-        document.querySelectorAll('.comments-quick-comments__container').forEach(el => el.remove());
+    function removeElements() {
+        selectorsToRemove.forEach(selector => {
+            document.querySelectorAll(selector).forEach(el => el.remove());
+        });
     }
 
-    // Initial run
+    // Initial cleanup
     removeElements();
 
-    // Keep scanning every 500ms for dynamically added elements
+    // Continuously check every 500ms for new elements to remove
     setInterval(removeElements, 500);
 })();
