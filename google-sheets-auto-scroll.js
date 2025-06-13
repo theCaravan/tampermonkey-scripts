@@ -3,8 +3,8 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://docs.google.com/spreadsheets/d/*
 // @grant       none
-// @version     2.5
-// @author      -
+// @version     2.6
+// @author      theCaravan (GitHub)
 // @description Continuous auto-scroll through a Google Sheet, looping back to the top after reaching the bottom.
 // ==/UserScript==
 
