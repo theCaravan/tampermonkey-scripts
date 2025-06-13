@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         Instagram Reel Auto-Advance & Auto-Unmute
 // @namespace    http://tampermonkey.net/
-// @version      5.3
+// @version      5.4
 // @description  Auto-advance reels, unmute video and remove blocking divs without logging
 // @match        *://www.instagram.com/*
 // @grant        none
+// @author       theCaravan (GitHub)
 // ==/UserScript==
 
 (function () {
