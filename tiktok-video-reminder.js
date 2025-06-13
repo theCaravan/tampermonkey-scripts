@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         TikTok Video Reminder Removal
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  Remove video reminder section if found on TikTok
-// @author       You
+// @author       theCaravan (GitHub)
 // @match        https://www.tiktok.com/*
 // @grant        none
 // ==/UserScript==
