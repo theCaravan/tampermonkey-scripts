@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         TikTok Video Hands Free (Normal)
 // @namespace    http://tampermonkey.net/
-// @version      1.4
+// @version      1.5
 // @description  Automatically move to the older video (downward in feed) on TikTok when the current video ends
-// @author       theCaravan (Modified by you)
+// @author       theCaravan (GitHub)
 // @match        *://www.tiktok.com/*
 // @grant        none
 // ==/UserScript==
