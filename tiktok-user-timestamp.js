@@ -3,9 +3,9 @@
 // @namespace   Violentmonkey Scripts
 // @match       https://www.tiktok.com/*
 // @grant       none
-// @version     3.0
+// @version     3.1
 // @description Replace video views with timestamps extracted from the video URL
-// @author      theCaravan
+// @author      theCaravan (GitHub)
 // ==/UserScript==
 
 (function() {
