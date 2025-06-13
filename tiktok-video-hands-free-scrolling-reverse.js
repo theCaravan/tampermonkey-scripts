@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         TikTok Video Hands Free (Reversed)
 // @namespace    http://tampermonkey.net/
-// @version      1.3
+// @version      1.4
 // @description  Automatically move to the previous video on TikTok when the current video ends, now with support for new navigation elements
-// @author       theCaravan (Updated by you)
+// @author       theCaravan (GitHub)
 // @match        *://www.tiktok.com/*
 // @grant        none
 // ==/UserScript==
