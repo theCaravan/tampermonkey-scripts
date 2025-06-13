@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         TikTok Date Format Changer
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.2
 // @description  Change relative "Xd ago" format to "M-d" format on TikTok, including hours and minutes with time.
-// @author       theCaravan
+// @author       theCaravan (GitHub)
 // @match        https://www.tiktok.com/*
 // @grant        none
 // ==/UserScript==
