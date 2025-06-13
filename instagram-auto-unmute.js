@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name         Instagram Reel Auto-Unmute Only
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  Only unmutes Instagram Reels and removes blocking divs
 // @match        *://www.instagram.com/*
+// @author       theCaravan (GitHub)
 // @grant        none
 // ==/UserScript==
 
