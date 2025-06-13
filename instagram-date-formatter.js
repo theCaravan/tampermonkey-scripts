@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         Instagram Date Formatter
 // @namespace    http://tampermonkey.net/
-// @version      2.0
+// @version      2.1
 // @description  Formats Instagram post dates in "Month Day, Year" format
 // @match        *://www.instagram.com/*
 // @grant        none
+// @author       theCaravan (GitHub)
 // ==/UserScript==
 
 (function () {
