@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         TikTok Photo Hands-Free
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  Automatically advance TikTok photo carousels every 10 seconds on SPA sites
-// @author       theCaravan
+// @author       theCaravan (GitHub)
 // @match        *://www.tiktok.com/*
 // @grant        none
 // ==/UserScript==
