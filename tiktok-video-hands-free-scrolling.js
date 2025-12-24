@@ -1,70 +1,74 @@
 // ==UserScript==
-// @name         TikTok Video Hands Free (Normal)
-// @namespace    http://tampermonkey.net/
-// @version      1.5
-// @description  Automatically move to the older video (downward in feed) on TikTok when the current video ends
-// @author       theCaravan (GitHub)
+// @name         TikTok Hands-Free + Auto Like
+// @namespace    vm-tiktok-handsfree-like
+// @version      2.0
+// @description  Auto-like after delay and auto-advance when video ends
 // @match        *://www.tiktok.com/*
 // @grant        none
 // ==/UserScript==
 
-(function() {
-    'use strict';
-    
-    function isVideoPage() {
-        return window.location.href.includes("/video/");
+(() => {
+  'use strict';
+
+  const LIKE_DELAY_MS = 10_000;
+  let lastVideo = null;
+  let likeTimer = null;
+
+  function isVideoPage() {
+    return location.href.includes('/video/');
+  }
+
+  function findLikeButton() {
+    return [...document.querySelectorAll('button[aria-pressed="false"]')]
+      .find(btn => btn.querySelector('[data-e2e="browse-like-icon"]'));
+  }
+
+  function scheduleLike() {
+    clearTimeout(likeTimer);
+
+    likeTimer = setTimeout(() => {
+      const btn = findLikeButton();
+      if (btn) {
+        btn.click();
+        console.log('[AutoLike] ❤️ Liked');
+      }
+    }, LIKE_DELAY_MS);
+  }
+
+  function handleVideoEnd() {
+    console.log('[HandsFree] Video ended');
+
+    const nav = document.querySelector('.css-1o2f1ti-DivFeedNavigationContainer');
+    if (nav) {
+      const buttons = nav.querySelectorAll('button');
+      if (buttons[1]) {
+        buttons[1].click();
+        return;
+      }
     }
-    
-    function handleVideoEnd() {
-        console.log("Video 'ended' event caught.");
-        
-        // First try the new navigation button (down arrow in the navigation container)
-        const newNavContainer = document.querySelector('.css-1o2f1ti-DivFeedNavigationContainer');
-        if (newNavContainer) {
-            // Get all buttons and find the down button (second one with down arrow icon)
-            const buttons = newNavContainer.querySelectorAll('button');
-            const downButton = buttons[1]; // Second button (index 1) should be the down button
-            
-            if (downButton) {
-                // Check if it contains the down arrow icon
-                const downIconSVG = downButton.querySelector('svg path[d^="m24 27.76"]');
-                if (downIconSVG) {
-                    console.log('Down navigation button found, clicking to go to the older video.');
-                    downButton.click();
-                    return;
-                }
-            }
-        }
-        
-        // Fall back to the original method if new navigation not found
-        const nextButton = document.querySelector('button[data-e2e="arrow-right"]');
-        if (nextButton) {
-            console.log('Next button found, clicking to go to the older video.');
-            nextButton.click();
-        } else {
-            console.log('Neither down navigation nor next button found on video end.');
-        }
-    }
-    
-    function setupVideoEndListener(video) {
-        if (!video) return;
-        video.removeEventListener('ended', handleVideoEnd);
-        video.addEventListener('ended', handleVideoEnd);
-    }
-    
-    function observeNewVideos() {
-        const observer = new MutationObserver(() => {
-            if (isVideoPage()) {
-                const video = document.querySelector('video');
-                if (video) {
-                    setupVideoEndListener(video);
-                } else {
-                    console.log('No video element found on page.');
-                }
-            }
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
-    }
-    
-    observeNewVideos();
+
+    const fallback = document.querySelector('button[data-e2e="arrow-right"]');
+    fallback?.click();
+  }
+
+  function setupVideo(video) {
+    if (!video || video === lastVideo) return;
+
+    lastVideo = video;
+    console.log('[Setup] New video detected');
+
+    clearTimeout(likeTimer);
+    video.removeEventListener('ended', handleVideoEnd);
+    video.addEventListener('ended', handleVideoEnd);
+
+    scheduleLike();
+  }
+
+  const observer = new MutationObserver(() => {
+    if (!isVideoPage()) return;
+    const video = document.querySelector('video');
+    if (video) setupVideo(video);
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
 })();
